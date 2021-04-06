@@ -1,7 +1,7 @@
 import XCTest
 
-import ChronicalTests
+import ChronicleTests
 
 var tests = [XCTestCaseEntry]()
-tests += ChronicalTests.allTests()
+tests += ChronicleTests.allTests()
 XCTMain(tests)
