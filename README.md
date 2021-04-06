@@ -8,9 +8,9 @@
 
 ### Default Format
 
-Monday, April 5, 2021 [com.example.chronical] ℹ️: Info
+4/5/21, 7:05:42 PM CDT [com.example.chronical] ℹ️: Info
 ```
-Date = Monday, April 5, 2021
+Date = 4/5/21, 7:05:42 PM CDT
 Label = [com.example.chronical]
 Emoji = ℹ️
 Message = Info
