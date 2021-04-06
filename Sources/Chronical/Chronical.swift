@@ -1,8 +1,6 @@
 import Foundation
 
 public struct Chronical {
-    public typealias ChronicalHandler = (Chronical, Chronical.LogLevel) -> Void
-    
     public static let defaultDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         
@@ -59,7 +57,7 @@ public struct Chronical {
     public let labelFormatter: (String) -> String
     public let outputFormatter: (LogLevel) -> String
     public let outputHandler: ((String) -> Void)
-    public let actionHandler: ChronicalHandler?
+    public let actionHandler: ((Chronical, LogLevel) -> Void)?
     
     public init(
         label: String,
@@ -67,7 +65,7 @@ public struct Chronical {
         labelFormatter: @escaping (String) -> String = { "[\($0)]" },
         outputFormatter: @escaping (LogLevel) -> String = { $0.output },
         outputHandler: @escaping (String) -> Void = { print($0) },
-        actionHandler: ChronicalHandler? = nil
+        actionHandler: ((Chronical, LogLevel) -> Void)? = nil
     ) {
         self.label = label
         self.dateFormatter = dateFormatter
