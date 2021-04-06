@@ -1,6 +1,6 @@
 # Chronical
 
-*Simple Swift Logger*
+*Simple Swift Logger in under 90 loc*
 
 ## Examples
 
