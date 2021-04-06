@@ -2,6 +2,20 @@
 
 *Simple Swift Logger in under 90 loc*
 
+## [Log 🪵 Message Format](https://github.com/0xLeif/Chronical/blob/546de4daa3fa150abf5fb430048a3e02adee5b92/Sources/Chronical/Chronical.swift#L80)
+
+**`{Date} {Label} {Emoji}: {Message}`**
+
+### Default Format
+
+Monday, April 5, 2021 [com.example.chronical] ℹ️: Info
+```
+Date = Monday, April 5, 2021
+Label = [com.example.chronical]
+Emoji = ℹ️
+Message = Info
+```
+
 ## Examples
 
 ### Default Chronical
