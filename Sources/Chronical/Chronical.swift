@@ -49,7 +49,7 @@ public struct Chronical {
             case .success(let value), .info(let value), .warning(let value):
                 return value
             case .error(let value, let error), .fatal(let value, let error):
-                return "\(value)" + (error.map { "\n{\n\t\($0): \($0.localizedDescription)\n}\n" } ?? "")
+                return value + (error.map { "\n{\n\t\($0): \($0.localizedDescription)\n}\n" } ?? "")
             }
         }
     }
@@ -83,7 +83,7 @@ public struct Chronical {
             actionHandler?(self, level)
         }
         
-        let output = formattedDate + " " + labelFormatter(label) + " " + outputFormatter(level)
+        let output = formattedDate + " " + labelFormatter(label) + " " + level.emoji + ": " + outputFormatter(level)
         
         outputHandler(output)
         
