@@ -2,7 +2,7 @@
 
 *Simple Swift Logger in under 90 loc*
 
-## [Log 🪵 Message Format](https://github.com/0xLeif/Chronicle/blob/546de4daa3fa150abf5fb430048a3e02adee5b92/Sources/Chronicle/Chronicle.swift#L80)
+## [Log 🪵 Message Format](https://github.com/0xLeif/Chronicle/blob/c2d5ea4e3db3810ae67c4ba08372feb9d98da2e7/Sources/Chronicle/Chronicle.swift#L80)
 
 **`{Date} {Label} {Emoji}: {Message}`**
 
