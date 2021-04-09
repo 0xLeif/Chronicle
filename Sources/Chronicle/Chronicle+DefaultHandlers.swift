@@ -18,7 +18,7 @@ extension Chronicle {
         }
         
         public struct FileHandler: ChronicleHandler {
-            private static var fileURL: URL {
+            public static var fileURL: URL {
                 FileManager.default.urls(for: .documentDirectory,
                                          in: .userDomainMask)[0]
                     .appendingPathComponent(fileName)
