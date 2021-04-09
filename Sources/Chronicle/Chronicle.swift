@@ -1,15 +1,22 @@
 import Foundation
 
+public protocol ChronicleFormatter {
+    var dateFormatter: DateFormatter { get }
+    func format(label: String) -> String
+    func format(logLevel: Chronicle.LogLevel) -> String
+    func output(
+        formattedDate: String,
+        formattedLabel: String,
+        formattedLogMessage: String
+    ) -> String
+}
+
+public protocol ChronicleHandler {
+    func handle(output: String) -> Void
+    func didHandle(chronicle: Chronicle, level: Chronicle.LogLevel)
+}
+
 public struct Chronicle {
-    public static let defaultDateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        
-        formatter.dateStyle = .short
-        formatter.timeStyle = .long
-        
-        return formatter
-    }()
-    
     public enum LogLevel {
         public static var successEmoji: String = "✅"
         public static var infoEmoji: String = "ℹ️"
@@ -48,38 +55,33 @@ public struct Chronicle {
         }
     }
     
+    private let formatter: ChronicleFormatter
+    private let handler: ChronicleHandler
+    
     public let label: String
-    public let dateFormatter: DateFormatter
-    public let labelFormatter: (String) -> String
-    public let outputFormatter: (LogLevel) -> String
-    public let outputHandler: ((String) -> Void)
-    public let actionHandler: ((Chronicle, LogLevel) -> Void)?
     
     public init(
         label: String,
-        dateFormatter: DateFormatter = Chronicle.defaultDateFormatter,
-        labelFormatter: @escaping (String) -> String = { "[\($0)]" },
-        outputFormatter: @escaping (LogLevel) -> String = { $0.output },
-        outputHandler: @escaping (String) -> Void = { print($0) },
-        actionHandler: ((Chronicle, LogLevel) -> Void)? = nil
+        formatter: ChronicleFormatter = Chronicle.DefaultFormatters.DefaultFormatter(),
+        handler: ChronicleHandler = Chronicle.DefaultHandlers.PrintHandler()
     ) {
         self.label = label
-        self.dateFormatter = dateFormatter
-        self.labelFormatter = labelFormatter
-        self.outputFormatter = outputFormatter
-        self.outputHandler = outputHandler
-        self.actionHandler = actionHandler
+        self.formatter = formatter
+        self.handler = handler
     }
     
     @discardableResult
     public func log(level: LogLevel) -> String {
         defer {
-            actionHandler?(self, level)
+            handler.handle(output: output)
+            handler.didHandle(chronicle: self, level: level)
         }
         
-        let output = dateFormatter.string(from: Date()) + " " + labelFormatter(label) + " " + level.emoji + ": " + outputFormatter(level)
-        
-        outputHandler(output)
+        let output = formatter.output(
+            formattedDate: formatter.dateFormatter.string(from: Date()),
+            formattedLabel: formatter.format(label: label),
+            formattedLogMessage: formatter.format(logLevel: level)
+        )
         
         return output
     }
