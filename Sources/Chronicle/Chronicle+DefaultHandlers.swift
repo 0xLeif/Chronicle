@@ -18,15 +18,17 @@ extension Chronicle {
         }
         
         public struct FileHandler: ChronicleHandler {
-            public static var fileURL: URL {
+            public var fileURL: URL {
                 FileManager.default.urls(for: .documentDirectory,
                                          in: .userDomainMask)[0]
                     .appendingPathComponent(fileName)
             }
             
-            public static var fileName: String = "chronicle.log"
+            public var fileName: String
             
-            public init() { }
+            public init(fileName: String = "chronicle.log") {
+                self.fileName = fileName
+            }
             
             public func handle(output: String) {
                 var fileOutput = ""
@@ -35,13 +37,13 @@ extension Chronicle {
                     fileOutput.append(output)
                     
                     do {
-                        try fileOutput.write(to: FileHandler.fileURL, atomically: true, encoding: String.Encoding.utf8)
+                        try fileOutput.write(to: fileURL, atomically: true, encoding: String.Encoding.utf8)
                     } catch {
                         dump(error)
                     }
                 }
                 
-                guard let contents = try? Data(contentsOf: FileHandler.fileURL) else {
+                guard let contents = try? Data(contentsOf: fileURL) else {
                     return
                 }
                 
