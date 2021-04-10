@@ -16,7 +16,32 @@ final class ChronicleTests: XCTestCase {
         XCTAssert(chrono.log(level: .fatal("Fatal", SomeError.abc)).contains("[com.example.chronicle] 🚨: Fatal"))
     }
     
+    func testFormatter() {
+        let label = "com.example.formatter"
+        let formatter = Chronicle.DefaultFormatters.DefaultFormatter()
+        
+        let log = Chronicle.LogLevel.success("Hello, World!")
+        
+        let formattedDate = formatter.dateFormatter.string(from: Date())
+        
+        let formattedLabel = formatter.format(label: label)
+        
+        let formattedLogMessage = formatter.format(logLevel: log)
+        
+        XCTAssertEqual(formattedLabel, "[com.example.formatter]")
+        XCTAssertEqual(formattedLogMessage, "✅: Hello, World!")
+        
+        let logOutput = formatter.output(
+            formattedDate: formattedDate,
+            formattedLabel: formattedLabel,
+            formattedLogMessage: formattedLogMessage
+        )
+        
+        XCTAssertEqual(logOutput, Chronicle(label: label).log(level: log))
+    }
+    
     static var allTests = [
         ("testExample", testExample),
+        ("testFormatter", testFormatter)
     ]
 }
