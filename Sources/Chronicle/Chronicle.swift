@@ -72,16 +72,14 @@ public struct Chronicle {
     
     @discardableResult
     public func log(level: LogLevel) -> String {
-        defer {
-            handler.handle(output: output)
-            handler.didHandle(chronicle: self, level: level)
-        }
-        
         let output = formatter.output(
             formattedDate: formatter.dateFormatter.string(from: Date()),
             formattedLabel: formatter.format(label: label),
             formattedLogMessage: formatter.format(logLevel: level)
         )
+        
+        handler.handle(output: output)
+        handler.didHandle(chronicle: self, level: level)
         
         return output
     }
