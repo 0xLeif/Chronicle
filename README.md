@@ -2,11 +2,9 @@
 
 *Simple Swift Logger in under 90 loc*
 
-## [Log 🪵 Message Format](https://github.com/0xLeif/Chronicle/blob/c2d5ea4e3db3810ae67c4ba08372feb9d98da2e7/Sources/Chronicle/Chronicle.swift#L80)
+### Default Format
 
 **`{Date} {Label} {Emoji}: {Message}`**
-
-### Default Format
 
 4/5/21, 7:05:42 PM CDT [com.example.chronicle] ℹ️: Info
 ```
@@ -35,112 +33,131 @@ chrono.log(level: .fatal("Fatal", SomeError.abc))
 
 **Logging**
 ```
-4/5/21, 7:05:42 PM CDT [com.example.chronicle] ✅: Success
-4/5/21, 7:05:42 PM CDT [com.example.chronicle] ℹ️: Info
-4/5/21, 7:05:42 PM CDT [com.example.chronicle] ⚠️: Warning
-4/5/21, 7:05:42 PM CDT [com.example.chronicle] ❗️: Error
+4/9/21, 9:42:08 PM CDT [com.example.chronicle] ✅: Success
+4/9/21, 9:42:08 PM CDT [com.example.chronicle] ℹ️: Info
+4/9/21, 9:42:08 PM CDT [com.example.chronicle] ⚠️: Warning
+4/9/21, 9:42:08 PM CDT [com.example.chronicle] ❗️: Error
 {
-    abc: The operation couldn’t be completed. (ChronicleTests.ChronicleTests.(unknown context at $107087918).(unknown context at $107087964).SomeError error 0.)
+	abc: The operation couldn’t be completed. (ChronicleTests.ChronicleTests.(unknown context at $10708b2f8).(unknown context at $10708b344).SomeError error 0.)
 }
-4/5/21, 7:05:42 PM CDT [com.example.chronicle] 🚨: Fatal
+4/9/21, 9:42:08 PM CDT [com.example.chronicle] 🚨: Fatal
 {
-    abc: The operation couldn’t be completed. (ChronicleTests.ChronicleTests.(unknown context at $107087918).(unknown context at $107087964).SomeError error 0.)
+	abc: The operation couldn’t be completed. (ChronicleTests.ChronicleTests.(unknown context at $10708b2f8).(unknown context at $10708b344).SomeError error 0.)
 }
 ```
 
-### DateFormatter Chronicle
+
+## Output Formatter
 ```swift
-let dateFormatter = DateFormatter()
-dateFormatter.timeStyle = .none
-dateFormatter.dateStyle = .full
-
-let chrono = Chronicle(
-    label: "com.example.chronicle",
-    dateFormatter: dateFormatter
-)
-
-enum SomeError: Error { case abc }
-
-chrono.log(level: .success("Success"))
-chrono.log(level: .info("Info"))
-chrono.log(level: .warning("Warning"))
-chrono.log(level: .error("Error", SomeError.abc))
-chrono.log(level: .fatal("Fatal", SomeError.abc))
-```
-
-**Logging**
-```
-Monday, April 5, 2021 [com.example.chronicle] ✅: Success
-Monday, April 5, 2021 [com.example.chronicle] ℹ️: Info
-Monday, April 5, 2021 [com.example.chronicle] ⚠️: Warning
-Monday, April 5, 2021 [com.example.chronicle] ❗️: Error
-{
-    abc: The operation couldn’t be completed. (ChronicleTests.ChronicleTests.(unknown context at $100f876d8).(unknown context at $100f87724).SomeError error 0.)
-}
-Monday, April 5, 2021 [com.example.chronicle] 🚨: Fatal
-{
-    abc: The operation couldn’t be completed. (ChronicleTests.ChronicleTests.(unknown context at $100f876d8).(unknown context at $100f87724).SomeError error 0.)
+public protocol ChronicleFormatter {
+    var dateFormatter: DateFormatter { get }
+    func format(label: String) -> String
+    func format(logLevel: Chronicle.LogLevel) -> String
+    func output(
+        formattedDate: String,
+        formattedLabel: String,
+        formattedLogMessage: String
+    ) -> String
 }
 ```
 
-### LabelFormatter Chronicle
+### Default Formatter
+
 ```swift
-let chrono = Chronicle(
-    label: "com.example.chronicle",
-    labelFormatter: { "👉 \($0) 👈" }
-)
-
-enum SomeError: Error { case abc }
-
-chrono.log(level: .success("Success"))
-chrono.log(level: .info("Info"))
-chrono.log(level: .warning("Warning"))
-chrono.log(level: .error("Error", SomeError.abc))
-chrono.log(level: .fatal("Fatal", SomeError.abc))
-```
-
-**Logging**
-```
-4/5/21, 7:27:47 PM CDT 👉 com.example.chronicle 👈 ✅: Success
-4/5/21, 7:27:47 PM CDT 👉 com.example.chronicle 👈 ℹ️: Info
-4/5/21, 7:27:47 PM CDT 👉 com.example.chronicle 👈 ⚠️: Warning
-4/5/21, 7:27:47 PM CDT 👉 com.example.chronicle 👈 ❗️: Error
-{
-    abc: The operation couldn’t be completed. (ChronicleTests.ChronicleTests.(unknown context at $100f87918).(unknown context at $100f87964).SomeError error 0.)
+extension Chronicle {
+    public struct DefaultFormatters {
+        public struct DefaultFormatter: ChronicleFormatter {
+            public init() { }
+            
+            public var dateFormatter: DateFormatter = {
+                let formatter = DateFormatter()
+                
+                formatter.dateStyle = .short
+                formatter.timeStyle = .long
+                
+                return formatter
+            }()
+            
+            public func format(label: String) -> String { "[\(label)]" }
+            
+            public func format(logLevel: Chronicle.LogLevel) -> String {
+                "\(logLevel.emoji): \(logLevel.output)"
+            }
+            
+            public func output(
+                formattedDate: String,
+                formattedLabel: String,
+                formattedLogMessage: String
+            ) -> String {
+                formattedDate + " " + formattedLabel + " " + formattedLogMessage
+            }
+        }
+    }
 }
-4/5/21, 7:27:47 PM CDT 👉 com.example.chronicle 👈 🚨: Fatal
-{
-    abc: The operation couldn’t be completed. (ChronicleTests.ChronicleTests.(unknown context at $100f87918).(unknown context at $100f87964).SomeError error 0.)
-}
 ```
 
-### OutputFormatter Chronicle
+### Output Handler
+
 ```swift
-let chrono = Chronicle(
-    label: "com.example.chronicle",
-    outputFormatter: { $0.emoji + " " + $0.output + " " + $0.emoji }
-)
-
-enum SomeError: Error { case abc }
-
-chrono.log(level: .success("Success"))
-chrono.log(level: .info("Info"))
-chrono.log(level: .warning("Warning"))
-chrono.log(level: .error("Error", SomeError.abc))
-chrono.log(level: .fatal("Fatal", SomeError.abc))
+public protocol ChronicleHandler {
+    func handle(output: String) -> Void
+    func didHandle(chronicle: Chronicle, level: Chronicle.LogLevel)
+}
 ```
 
-**Logging**
-```
-4/5/21, 7:29:21 PM CDT [com.example.chronicle] ✅: ✅ Success ✅
-4/5/21, 7:29:21 PM CDT [com.example.chronicle] ℹ️: ℹ️ Info ℹ️
-4/5/21, 7:29:21 PM CDT [com.example.chronicle] ⚠️: ⚠️ Warning ⚠️
-4/5/21, 7:29:21 PM CDT [com.example.chronicle] ❗️: ❗️ Error
-{
-    abc: The operation couldn’t be completed. (ChronicleTests.ChronicleTests.(unknown context at $107087918).(unknown context at $107087964).SomeError error 0.)
-} ❗️
-4/5/21, 7:29:21 PM CDT [com.example.chronicle] 🚨: 🚨 Fatal
-{
-    abc: The operation couldn’t be completed. (ChronicleTests.ChronicleTests.(unknown context at $107087918).(unknown context at $107087964).SomeError error 0.)
-} 🚨
+### Default Handlers
+
+```swift
+extension Chronicle {
+    public struct DefaultHandlers {
+        public struct PrintHandler: ChronicleHandler {
+            public init() { }
+            
+            public func handle(output: String) { print(output) }
+            
+            public func didHandle(chronicle: Chronicle, level: Chronicle.LogLevel) { }
+        }
+        
+        public struct FileHandler: ChronicleHandler {
+            public var fileURL: URL {
+                FileManager.default.urls(for: .documentDirectory,
+                                         in: .userDomainMask)[0]
+                    .appendingPathComponent(fileName)
+            }
+            
+            public var fileName: String
+            
+            public init(fileName: String = "chronicle.log") {
+                self.fileName = fileName
+            }
+            
+            public func handle(output: String) {
+                var fileOutput = ""
+                
+                defer {
+                    fileOutput.append(output)
+                    
+                    do {
+                        try fileOutput.write(to: fileURL, atomically: true, encoding: String.Encoding.utf8)
+                    } catch {
+                        dump(error)
+                    }
+                }
+                
+                guard let contents = try? Data(contentsOf: fileURL) else {
+                    return
+                }
+                
+                let fileContents = String(data: contents, encoding: .utf8)
+                
+                if let fileContents = fileContents {
+                    fileOutput.append(fileContents + "\n")
+                }
+                
+            }
+            
+            public func didHandle(chronicle: Chronicle, level: Chronicle.LogLevel) { }
+        }
+    }
+}
 ```
