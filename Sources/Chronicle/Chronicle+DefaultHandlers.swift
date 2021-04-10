@@ -35,7 +35,7 @@ extension Chronicle {
                     fileOutput.append(output)
                     
                     do {
-                        try output.write(to: FileHandler.fileURL, atomically: true, encoding: String.Encoding.utf8)
+                        try fileOutput.write(to: FileHandler.fileURL, atomically: true, encoding: String.Encoding.utf8)
                     } catch {
                         dump(error)
                     }
