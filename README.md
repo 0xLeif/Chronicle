@@ -119,6 +119,8 @@ extension Chronicle {
         }
         
         public struct FileHandler: ChronicleHandler {
+            private let lock = NSLock()
+            
             public var fileURL: URL {
                 FileManager.default.urls(for: .documentDirectory,
                                          in: .userDomainMask)[0]
@@ -134,6 +136,8 @@ extension Chronicle {
             public func handle(output: String) {
                 var fileOutput = ""
                 
+                lock.lock()
+                
                 defer {
                     fileOutput.append(output)
                     
@@ -142,6 +146,8 @@ extension Chronicle {
                     } catch {
                         dump(error)
                     }
+                    
+                    lock.unlock()
                 }
                 
                 guard let contents = try? Data(contentsOf: fileURL) else {
